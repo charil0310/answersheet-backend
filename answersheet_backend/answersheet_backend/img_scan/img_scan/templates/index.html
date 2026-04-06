@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>答题卡实时扫描</title>
+    <style>
+        body {
+            text-align: center;
+            background: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin: 20px;
+            color: #333;
+        }
+
+        #video-container {
+            display: inline-block;
+            border: 3px solid transparent;
+            /* 初始透明边框 */
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* 摄像头正常工作时显示边框 */
+        #video-container.active {
+            border-color: #007bff;
+        }
+
+        #video-stream {
+            max-width: 90vw;
+            /* 最大宽度为屏幕宽度的90% */
+            max-height: 70vh;
+            /* 最大高度为屏幕高度的70% */
+            height: auto;
+        }
+
+        #btn-capture {
+            margin: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        #btn-capture:hover {
+            background: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        #result img {
+            max-width: 80%;
+            border: 2px solid #28a745;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>答题卡实时扫描</h1>
+    <div id="video-container">
+        <img id="video-stream" src="{{ url_for('video_feed') }}" alt="摄像头实时流">
+    </div>
+    <br>
+    <button id="btn-capture">拍照并保存</button>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById("btn-capture").onclick = function () {
+            fetch("/capture", { method: "POST" })
+                .then(resp => {
+                    if (!resp.ok) {
+                        return resp.text().then(msg => { alert(msg); });
+                    }
+                    return resp.blob();
+                })
+                .then(blob => {
+                    if (blob) {
+                        let img = document.createElement("img");
+                        img.src = URL.createObjectURL(blob);
+                        document.getElementById("result").innerHTML = "";
+                        document.getElementById("result").appendChild(img);
+                    }
+                });
+        };
+        // 监控视频流加载状态，动态添加边框
+        const videoStream = document.getElementById("video-stream");
+        videoStream.onload = function () {
+            document.getElementById("video-container").classList.add("active");
+        };
+        // 加载失败时显示提示
+        videoStream.onerror = function () {
+            alert("视频流加载失败，请检查摄像头");
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+torch~=2.6.0
+torchvision
+segmentation-models-pytorch~=0.5.0
+scikit-learn~=1.7.0
+labelme
+numpy~=2.2.4
+albumentations~=2.0.8
+pillow~=11.1.0
+pandas~=2.3.3
+opencv-contrib-python
